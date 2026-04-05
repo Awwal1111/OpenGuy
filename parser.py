@@ -45,6 +45,32 @@ def _regex_parse(text: str) -> Dict[str, Any]:
     if angle_match:
         result["angle_deg"] = float(angle_match.group(1))
 
+    if result["distance_cm"] is None and result["action"] == "move":
+        bare_dist_match = re.search(r'\b(\d+(?:\.\d+)?)\b', text)
+        if bare_dist_match and not angle_match:
+            result["distance_cm"] = float(bare_dist_match.group(1))
+
+    if result["angle_deg"] is None and result["action"] == "rotate":
+        bare_angle_match = re.search(r'\b(\d+(?:\.\d+)?)\b', text)
+        if bare_angle_match:
+            result["angle_deg"] = float(bare_angle_match.group(1))
+
+    if result["action"] == "move" and result["distance_cm"] is None and result["direction"]:
+        if re.search(r'\b(a bit|slightly|a little|little)\b', text):
+            result["distance_cm"] = 5.0
+        elif re.search(r'\b(far|further|a lot|more|long)\b', text):
+            result["distance_cm"] = 30.0
+        else:
+            result["distance_cm"] = 10.0
+
+    if result["action"] == "rotate" and result["angle_deg"] is None and result["direction"]:
+        if re.search(r'\b(a bit|slightly|a little|little)\b', text):
+            result["angle_deg"] = 15.0
+        elif re.search(r'\b(far|further|a lot|more|sharp|hard|big)\b', text):
+            result["angle_deg"] = 90.0
+        else:
+            result["angle_deg"] = 45.0
+
     return result
 
 
@@ -161,7 +187,16 @@ def parse(
         print("[EchoArm] Falling back to regex parser.")
 
     result = _regex_parse(text)
-    result["confidence"] = 0.5 if result["action"] else 0.0
+    if not result["action"] or result["action"] == "unknown":
+        result["confidence"] = 0.0
+    elif result["action"] in {"grab", "release", "stop"}:
+        result["confidence"] = 0.9
+    elif result["action"] == "move":
+        result["confidence"] = 0.85 if result["distance_cm"] is not None else 0.6
+    elif result["action"] == "rotate":
+        result["confidence"] = 0.85 if result["angle_deg"] is not None else 0.6
+    else:
+        result["confidence"] = 0.5
     return result
 
 
