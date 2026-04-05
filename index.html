@@ -645,10 +645,16 @@ function renderResult(cmd, execResult) {
   
   return `<div class="cards">
     <div class="card" style="animation-delay:0s">
+      <div class="ch"><span class="clabel">Workspace</span><span class="pill p-cyan">2D VIEW</span></div>
+      <div class="cb" style="padding:0">
+        <img src="/api/visualize" style="width:100%; height:auto; display:block; border-radius:8px"/>
+      </div>
+    </div>
+    <div class="card" style="animation-delay:.05s">
       <div class="ch"><span class="clabel">Parsed command</span>${confBadge(c)}</div>
       <div class="cb"><div class="jv">${colorJson(cmd)}</div></div>
     </div>
-    <div class="card" style="animation-delay:.07s">
+    <div class="card" style="animation-delay:.10s">
       <div class="ch"><span class="clabel">Confidence</span><span class="pill p-dim">CLAUDE</span></div>
       <div class="cb">
         <div class="conf-wrap">
@@ -664,7 +670,7 @@ function renderResult(cmd, execResult) {
         </div>
       </div>
     </div>
-    <div class="card" style="animation-delay:.14s">
+    <div class="card" style="animation-delay:.15s">
       <div class="ch"><span class="clabel">Robot response</span><span class="pill p-cyan">SIMULATOR</span></div>
       <div class="cb">
         <div class="sim-rows">

@@ -13,6 +13,7 @@ from flask import Flask, render_template_string, request, jsonify
 from parser import parse
 from simulator import RobotSimulator
 from chain_executor import parse_command_chain, execute_chain_step, get_chain_status, reset_chain
+from visualizer import get_workspace_visualization
 
 # ── Flask Setup ──────────────────────────────────────────────────────────────
 
@@ -243,6 +244,13 @@ def api_chain_reset():
     """Reset the command chain executor."""
     reset_chain()
     return jsonify({"success": True, "message": "Chain reset"})
+
+
+@app.route("/api/visualize", methods=["GET"])
+def api_visualize():
+    """Get 2D workspace visualization as SVG."""
+    svg = get_workspace_visualization(robot.get_status())
+    return svg, 200, {"Content-Type": "image/svg+xml"}
 
 
 # ── Error Handlers ───────────────────────────────────────────────────────────
